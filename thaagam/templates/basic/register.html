@@ -1,0 +1,139 @@
+{% extends 'basic/index.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    html, body {
+        font-family: 'Poppins', sans-serif;
+        height: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        font-size: 16px;
+        color: #fff;
+    }
+
+    .register-card {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 35px 30px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        width: 400px;
+        max-width: 420px;
+        transition: transform 0.3s ease;
+        color: #fff;
+    }
+
+    .register-card:hover {
+        transform: scale(1.02);
+    }
+
+    .register-card h4 {
+        font-size: 2rem;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #ffffff;
+    }
+
+    .form-control {
+        font-size: 1.05rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary {
+        width: 100%;
+        font-size: 1.2rem;
+        font-weight: 500;
+        padding: 0.6rem;
+        border-radius: 10px;
+        background: linear-gradient(to right, #ff758c, #ff7eb3);
+        border: none;
+        margin-top: 15px;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(to right, #ff5c77, #ff6da0);
+    }
+
+    .alert {
+        font-size: 0.95rem;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    .helptext {
+        font-size: 0.85rem;
+        color: #eee;
+        margin-top: 5px;
+        display: block;
+    }
+
+    ul.errorlist {
+        list-style: none;
+        padding-left: 0;
+        color: #ffc0cb;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+
+    @media (max-width: 576px) {
+        html, body {
+            padding: 10px;
+        }
+
+        .register-card h4 {
+            font-size: 1.6rem;
+        }
+
+        .form-control, .btn-primary {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<div class="register-card">
+    <h4>User Registration</h4>
+    <form method="POST" autocomplete="off">
+        {% csrf_token %}
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="mb-3">
+            {{ form.username|as_crispy_field }}
+        </div>
+        <div class="mb-3">
+            {{ form.email|as_crispy_field }}
+        </div>
+        <div class="mb-3">
+            {{ form.password1|as_crispy_field }}
+        </div>
+        <div class="mb-3">
+            {{ form.password2|as_crispy_field }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+    
+</div>
+{% endblock %}

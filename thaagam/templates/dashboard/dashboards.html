@@ -1,0 +1,105 @@
+{% extends 'Dashboard/Dashboard_index.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  {%if user.is_superuser%}
+  <div class="container-fluid py-4">
+    <h1 class="mb-4">Welcome Admin, {{ user.get_full_name|default:user.username }}</h1>
+  </div>
+  {%else%}
+  <div class="container-fluid py-4">
+    <h1 class="mb-4">Welcome {{ user.get_full_name|default:user.username }} Manager</h1>
+  </div>
+  {%endif%}
+  <!-- Dashboard Cards -->
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card text-bg-primary">
+        <div class="card-body d-flex align-items-center">
+          <div class="card-icon">👥</div>
+          <div>
+            <h5>Total Employees</h5>
+            <p class="mb-0 fs-4">{{ employee_count }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-bg-success">
+        <div class="card-body d-flex align-items-center">
+          <div class="card-icon">📁</div>
+          <div>
+            <h5>Departments</h5>
+            <p class="mb-0 fs-4">{{ department_count }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-bg-warning">
+        <div class="card-body d-flex align-items-center">
+          <div class="card-icon">🕒</div>
+          <div>
+            <h5>Recent Logins</h5>
+            <p class="mb-0 fs-4">{{ recent_logins }} today</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Employee Table -->
+  <div class="card mt-5 shadow-sm">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">Employee List</h5>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Phone</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for emp in employees %}
+          <tr>
+            <td>{{ emp.user.get_full_name|default:emp.user.username }}</td>
+            <td>{{ emp.user.email }}</td>
+            <td>{{ emp.department|default:"N/A" }}</td>
+            <td>{{ emp.contact }}</td>
+            <td>
+              <a href="{% url 'staff_update' emp.id %}" class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+              <a href="{% url 'staff_delete' emp.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center">No employees found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap Bundle with Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Add a confirmation dialog for delete buttons
+  document.querySelectorAll('.btn-outline-danger').forEach(button => {
+    button.addEventListener('click', function(event) {
+      if (!confirm('Are you sure you want to delete this employee?')) {
+        event.preventDefault();
+      }
+    });
+  });
+</script>
+{% endblock %}

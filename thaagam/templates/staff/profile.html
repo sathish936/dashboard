@@ -1,0 +1,222 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Profile</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .wrapper {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .sidebar {
+      min-width: 250px;
+      background-color: #343a40;
+      color: white;
+    }
+
+    .sidebar .nav-link {
+      color: #ccc;
+      padding: 12px 20px;
+    }
+
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+      background-color: #495057;
+      color: white;
+    }
+
+    .sidebar .navbar-brand {
+      padding: 20px;
+      font-size: 24px;
+      color: white;
+    }
+
+    .main {
+      flex-grow: 1;
+      background: #f8f9fa;
+      padding: 30px;
+    }
+
+    .logout-btn {
+      background-color: #dc3545;
+      color: white;
+      width: 100%;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 20px;
+      font-weight: 500;
+      transition: background 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #bd2130;
+    }
+
+    @media (max-width: 768px) {
+      .wrapper {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+      }
+
+      .main {
+        padding: 20px;
+      }
+
+      .logout-btn {
+        width: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrapper">
+  <!-- Sidebar -->
+  <nav class="sidebar d-flex flex-column">
+    <h3 class="navbar-brand mb-0">Dashboard</h3>
+    <ul class="nav flex-column mt-3 px-2">
+      <li class="nav-item">
+        <a href="#" class="nav-link active">👤 Profile</a>
+      </li>
+      <li class="nav-item">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="container-fluid">
+      <!-- Profile Info -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <h2 class="text-capitalize">Welcome {{ profile.user.username}}</h2>
+          <div class="card mt-3 shadow-sm">
+            <div class="card-body">
+              <p><strong>Email:</strong> {{ profile.user.email }}</p>
+              <p><strong>Contact:</strong> {{ profile.contact }}</p>
+              <p><strong>Age:</strong> {{ profile.age }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-4">
+          <div class="card text-white bg-primary h-100 shadow">
+            <div class="card-body">
+              <h5 class="card-title">Total Tasks</h5>
+              <p class="card-text fs-4">{{ tasks|length }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-white bg-success h-100 shadow">
+            <div class="card-body">
+              <h5 class="card-title">Completed</h5>
+              <p class="card-text fs-4">{{ completed_count }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-white bg-warning h-100 shadow">
+            <div class="card-body">
+              <h5 class="card-title">Pending</h5>
+              <p class="card-text fs-4">{{ pending_count }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="card mb-5 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Task Overview</h5>
+          <div style="max-width: 400px; margin: auto;">
+            <canvas id="taskChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task List -->
+      <h3 class="mb-3">Your Tasks</h3>
+      {% if tasks %}
+        <div class="row">
+          {% for task in tasks %}
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title">{{ task.title }}</h5>
+                  <p class="card-text">{{ task.description }}</p>
+                  <p>
+                    {% if task.is_completed %}
+                      <span class="badge bg-success">✅ Completed</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark">❌ Not Completed</span>
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted">You have no tasks assigned.</p>
+      {% endif %}
+    </div>
+  </main>
+</div>
+
+<!-- Chart Script -->
+<script>
+  const completedCount = Number("{{ completed_count|default:'0' }}");
+  const pendingCount = Number("{{ pending_count|default:'0' }}");
+
+  const ctx = document.getElementById('taskChart').getContext('2d');
+  const taskChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Completed', 'Pending'],
+      datasets: [{
+        data: [completedCount, pendingCount],
+        backgroundColor: ['#28a745', '#ffc107'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
