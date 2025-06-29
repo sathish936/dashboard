@@ -22,5 +22,6 @@ Tech Stack;-
 
 Admin username and password:-
 
-  username : sathish
-  password :12345
+  *username : sathish
+  *password :12345
+   
